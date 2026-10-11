@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/bounceback-core",
+    "crates/bounceback-server",
+]
+resolver = "2"

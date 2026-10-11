@@ -1,0 +1,46 @@
+services:
+  # 🦀 Suíte de Testes Automatizados do Core e Regressão
+  core-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    command: cargo test --workspace -- --nocapture
+    environment:
+      - RUST_BACKTRACE=1
+
+  # ⚡ Servidor RPC / REST do Core (Porta 3001)
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    environment:
+      - RUST_BACKTRACE=1
+
+  # 🖥️ Interface Desktop / Web Shell Vite + React (Porta 5173)
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://server:3001
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    depends_on:
+      - server
+
+volumes:
+  cargo-cache:
+  target-cache:
